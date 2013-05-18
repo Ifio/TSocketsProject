@@ -1,15 +1,10 @@
 package server;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Map;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 /**
  *
@@ -71,19 +66,19 @@ public class ClientThread extends Thread {
         }
     }
     
-    void JSONDecoder(JSONObject sMessage){
-        System.out.println(sMessage.get("message"));
-    }
-    
     @Override
     public void run(){
         boolean bRunning = true;
         
         while(bRunning){
             try{
+                //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
-                server.sendAll((String) msgD.get("message"));
-                JSONDecoder(msgD);
+                String message = msgD.get("susername").toString() + ": " + 
+                        msgD.get("message").toString();
+                server.sendAll(message);
+               
+                
             }catch(IOException | ClassNotFoundException ioe){
                 System.out.println("error sending message: " + ioe + "\n");
             }

@@ -1,9 +1,7 @@
 package client;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import org.json.simple.JSONObject;
@@ -21,15 +19,16 @@ public class ClientChat extends Thread{
     private DataInputStream dis;
     private ObjectOutputStream dos;
     private Socket client;
-    private String susername = "Anonymous";
+    private String susername;
     
     ClientChat(ClientGUI clientGUI){
         this.clientGUI = clientGUI;
     }
     
-    public void createConn(String shost,int iport){
+    public void createConn(String shost,int iport, String susername){
         try{
             client = new Socket(shost, iport);
+            this.susername = susername;
             dos = new ObjectOutputStream(client.getOutputStream());
             dis = new DataInputStream(client.getInputStream());
             
