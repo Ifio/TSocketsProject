@@ -3,7 +3,13 @@ package server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Map;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  *
@@ -16,8 +22,9 @@ public class ClientThread extends Thread {
     
     private ServerDaemon server;
     private Socket client;
-    private DataInputStream dis;
+    private ObjectInputStream dis;
     private DataOutputStream dos;
+    private int id;
     
     ClientThread(ServerDaemon server, Socket client){
         this.server = server;
@@ -26,7 +33,7 @@ public class ClientThread extends Thread {
         try{
             //obtain input and output streams from the client... OH YEAH!
             dos = new DataOutputStream(client.getOutputStream());
-            dis = new DataInputStream(client.getInputStream());
+            dis = new ObjectInputStream(client.getInputStream());
             
             //TODO alert new clients connection in the ROOM!!!! BOO!!!
             
@@ -34,9 +41,8 @@ public class ClientThread extends Thread {
             System.out.println("Error obtaining data streams: " + ioe + "\n");
         }
     }
- 
+    
     void sendMessage(String smessage){
-        
         try{
             dos.writeUTF(smessage);
         }catch(IOException ioe){
@@ -65,18 +71,27 @@ public class ClientThread extends Thread {
         }
     }
     
+    void JSONDecoder(JSONObject sMessage){
+        System.out.println(sMessage.get("message"));
+    }
+    
     @Override
     public void run(){
         boolean bRunning = true;
         
         while(bRunning){
             try{
-                server.sendAll(dis.readUTF());
-            }catch(IOException ioe){
+                JSONObject msgD = (JSONObject) dis.readObject();
+                server.sendAll((String) msgD.get("message"));
+                JSONDecoder(msgD);
+            }catch(IOException | ClassNotFoundException ioe){
                 System.out.println("error sending message: " + ioe + "\n");
             }
         }
         if(!bRunning)
             closeCommunication();
     }
+    
+    
 }
+

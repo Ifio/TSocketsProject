@@ -3,7 +3,10 @@ package client;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -16,8 +19,9 @@ public class ClientChat extends Thread{
     
     private ClientGUI clientGUI;
     private DataInputStream dis;
-    private DataOutputStream dos;
+    private ObjectOutputStream dos;
     private Socket client;
+    private String susername = "Anonymous";
     
     ClientChat(ClientGUI clientGUI){
         this.clientGUI = clientGUI;
@@ -26,7 +30,7 @@ public class ClientChat extends Thread{
     public void createConn(String shost,int iport){
         try{
             client = new Socket(shost, iport);
-            dos = new DataOutputStream(client.getOutputStream());
+            dos = new ObjectOutputStream(client.getOutputStream());
             dis = new DataInputStream(client.getInputStream());
             
         }catch(IOException ioe){
@@ -48,9 +52,14 @@ public class ClientChat extends Thread{
         }
     }
     
-    public void sendMessage(String msg){
+    public void sendMessage(String message){
+        JSONObject msg = new JSONObject();
+        msg.put("susername", susername);
+        msg.put("messageType", new Integer(1));
+        msg.put("message", message);
+        
         try{
-            dos.writeUTF(msg);
+            dos.writeObject(msg);
         }catch(IOException ioe){
             System.out.println("Error sending message: " + ioe + "\n");
         }

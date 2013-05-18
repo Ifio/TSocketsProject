@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package client;
  
 import java.awt.Toolkit;
@@ -9,8 +5,12 @@ import java.awt.event.KeyEvent;
 
 /**
  *
- * @author usuario
+ * @author Camilo Velasquez
+ * @author Jason Carcamo
+ * @since 16/05/2013
+ * @version 1.0
  */
+
 public class ClientGUI extends javax.swing.JFrame {
 
     
@@ -94,11 +94,15 @@ public class ClientGUI extends javax.swing.JFrame {
             }
         });
 
+        txtHostAdd.setText("localhost");
+
         jLabel1.setText("Host");
 
         jLabel2.setText("Port");
 
-        bttnConnect.setLabel("button1");
+        txtPort.setText("2500");
+
+        bttnConnect.setLabel("Connect");
         bttnConnect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bttnConnectActionPerformed(evt);
@@ -118,13 +122,12 @@ public class ClientGUI extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtHostAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(36, 36, 36)
-                        .addComponent(jLabel2)
+                        .addGap(35, 35, 35)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
-                        .addComponent(bttnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(16, 16, 16)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                        .addComponent(bttnConnect, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

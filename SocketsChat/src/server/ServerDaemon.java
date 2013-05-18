@@ -18,9 +18,11 @@ public class ServerDaemon {
     private int iport = 2500;
     private boolean bwaiting;
     private ArrayList<ClientThread> alClients;
+    
+    
     //constructor
     ServerDaemon(){
-       alClients = new ArrayList();
+        alClients = new ArrayList();
     }
     
     
@@ -51,14 +53,14 @@ public class ServerDaemon {
             
         }
     }
-
+    
     private void closeCommunication() {
         for(int i = 0; i < alClients.size();i++)
             alClients.get(i).closeCommunication();
     }
-
+    
     void sendAll(String message) {
         for(int i = 0; i < alClients.size(); i++)
             alClients.get(i).sendMessage(message);
-   }
+    }
 }
