@@ -18,16 +18,17 @@ public class ServerDaemon {
     //global variables
     private int iport = 2500;
     private boolean bwaiting;
-    private ArrayList<ClientThread> alClients;
-    private HashMap<String,Integer> hmchatRooms;
-    private int ihereWeGo = 0;
+    private ArrayList<ClientThread> alclients;
+    private HashMap<Integer,String> hmclients;
+    private ArrayList<String> alchatRooms;
+    private int icurrentClientId = 0;
     
     //constructor
     ServerDaemon(){
-        alClients = new ArrayList();
-        hmchatRooms = new HashMap();
+        alclients = new ArrayList();
+        alchatRooms = new ArrayList();
+        hmclients = new HashMap();
     }
-    
     
     public static void main(String [] args ){
         new ServerDaemon().startDaemon();
@@ -44,9 +45,9 @@ public class ServerDaemon {
             while(bwaiting){
                 System.out.println("Server is waiting for connections on port: " + iport);
                 Socket client = server.accept();
-                ClientThread tClient  = new ClientThread(this,client);
-                alClients.add(tClient);
-                tClient.start();
+                ClientThread ctclient  = new ClientThread(this,client);
+                alclients.add(ctclient);
+                ctclient.start();
                 
             }
             
@@ -58,25 +59,31 @@ public class ServerDaemon {
         }
     }
     
-    private void closeCommunication() {
-        for(int i = 0; i < alClients.size();i++)
-            alClients.get(i).closeCommunication();
+    void setNewClient(ClientThread ctclient, String susername){
+        hmclients.put(icurrentClientId, susername);
+        ctclient.setIclientId(icurrentClientId);
+        System.out.println(hmclients.get(icurrentClientId));
+        icurrentClientId++;
     }
     
-    void sendAll(String message,String sroom) {
-        for(int i = 0; i < alClients.size(); i++){
-            ClientThread client = alClients.get(i);
-            if(client.getIroomId() == hmchatRooms.get(sroom)){
+    private void closeCommunication() {
+        for(int i = 0; i < alclients.size();i++)
+            alclients.get(i).closeCommunication();
+    }
+    
+    void sendAll(String message,String schatRoom) {
+        for(int i = 0; i < alclients.size(); i++){
+            ClientThread client = alclients.get(i);
+            System.out.println(client.getSchatRoom());
+            System.out.println(schatRoom);
+            if(client.getSchatRoom().equals(schatRoom)){
                 client.sendMessage(message);
             }
         }
-            
     }
 
     void createRoom(String schatRoom, ClientThread client) {
-        hmchatRooms.put(schatRoom, ihereWeGo);
-        client.setIclientId(ihereWeGo);
-        ihereWeGo++;
+        alchatRooms.add(schatRoom);
         client.sendMessage("1");
     }
 }

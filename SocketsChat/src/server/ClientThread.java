@@ -1,9 +1,11 @@
 package server;
 
+import client.ClientChat;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import org.json.simple.JSONObject;
 
 /**
@@ -19,25 +21,9 @@ public class ClientThread extends Thread {
     private Socket client;
     private ObjectInputStream dis;
     private DataOutputStream dos;
+    private String schatRoom;
     private int iclientId;
-    private int iroomId;
 
-    public int getIclientId() {
-        return iclientId;
-    }
-
-    public void setIclientId(int iclientId) {
-        this.iclientId = iclientId;
-    }
-
-    public int getIroomId() {
-        return iroomId;
-    }
-
-    public void setIroomId(int iroomId) {
-        this.iroomId = iroomId;
-    }
-    
     ClientThread(ServerDaemon server, Socket client){
         this.server = server;
         this.client = client;
@@ -54,7 +40,25 @@ public class ClientThread extends Thread {
         }
     }
     
+    //Getters and Setters
+    public int getIclientId() {
+        return iclientId;
+    }
+
+    public void setIclientId(int iclientId) {
+        this.iclientId = iclientId;
+    }
+
+    public String getSchatRoom() {
+        return schatRoom;
+    }
+    
     void sendMessage(String smessage){
+//        JSONObject msg = new JSONObject();
+//        msg.put("susername", susername);
+//        msg.put("chatRoom", schatRoom);
+//        msg.put("message", message);
+//        msg.put("type", new Integer(itype));
         try{
             dos.writeUTF(smessage);
         }catch(IOException ioe){
@@ -93,18 +97,20 @@ public class ClientThread extends Thread {
                 JSONObject msgD = (JSONObject) dis.readObject();
                 String susername = msgD.get("susername").toString();
                 String msg = msgD.get("message").toString();
-                String schatRoom = msgD.get("chatRoom").toString();
+                schatRoom = msgD.get("chatRoom").toString();
                 int itype = Integer.parseInt(msgD.get("type").toString());
                 switch(itype){
-                    case 1:
-                        server.createRoom(schatRoom, this);
-                        
+                    case ClientChat.NEW_CLIENT:
+                        server.setNewClient(this, susername);
                         break;
-                    case 2:
-                        
+                    case ClientChat.MESSAGE:
+                        server.sendAll(susername + ": " + msg, schatRoom);
+                        break;
+                    case ClientChat.NEW_ROOM:
+                        server.createRoom(schatRoom, this);
                         break;
                     default:
-                        server.sendAll(susername + ": " + msg, schatRoom);
+                        
                         break;
                  }
                 

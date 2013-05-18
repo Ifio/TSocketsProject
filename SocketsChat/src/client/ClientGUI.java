@@ -40,6 +40,9 @@ public class ClientGUI extends javax.swing.JFrame {
         client = new ClientChat(this);
         client.createConn(shost, iport, susername);
         client.start();
+        //Say to the server who the fuck i am
+        client.sendMessage("", ClientChat.NEW_CLIENT);
+        
         bttnConnectHost.setEnabled(false);
         //get chatRoom list
         bttnNewChatRoom.setEnabled(true);
@@ -269,7 +272,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
             case KeyEvent.VK_ENTER:
                 Toolkit.getDefaultToolkit().beep();
-                client.sendMessage(txtSend.getText(),0);
+                client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
                 txtSend.setText(null);
                 break;
             case KeyEvent.VK_ESCAPE:

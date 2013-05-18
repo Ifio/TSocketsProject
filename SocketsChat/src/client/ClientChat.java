@@ -21,6 +21,11 @@ public class ClientChat extends Thread {
     private Socket client;
     private String susername;
     private String schatRoom = "";
+    private int iclientId;
+    public static final int NEW_CLIENT = 0;
+    public static final int MESSAGE = 1;
+    public static final int NEW_ROOM = 2;
+    public static final int ENTER_ROOM = 3;
 
     ClientChat(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
@@ -38,6 +43,15 @@ public class ClientChat extends Thread {
         }
     }
 
+    void createRoom(String schatRoom) {
+        this.schatRoom = schatRoom;
+        sendMessage("",ClientChat.NEW_ROOM);
+    }
+
+    void getRooms() {
+        //TODO
+    }
+    
     public void sendMessage(String message, int itype) {
         JSONObject msg = new JSONObject();
         msg.put("susername", susername);
@@ -50,15 +64,6 @@ public class ClientChat extends Thread {
         } catch (IOException ioe) {
             System.out.println("Error sending message: " + ioe + "\n");
         }
-    }
-
-    void createRoom(String schatRoom) {
-        this.schatRoom = schatRoom;
-        sendMessage("",1);
-    }
-
-    void getRooms() {
-        //TODO
     }
 
     @Override
