@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -18,16 +19,19 @@ public class ServerDaemon {
     private int iport = 2500;
     private boolean bwaiting;
     private ArrayList<ClientThread> alClients;
-    private ArrayList<ArrayList<ClientThread>> salitas;
+    private HashMap<String,Integer> hmchatRooms;
+    private int ihereWeGo = 0;
     
     //constructor
     ServerDaemon(){
         alClients = new ArrayList();
+        hmchatRooms = new HashMap();
     }
     
     
     public static void main(String [] args ){
         new ServerDaemon().startDaemon();
+        
     }
     
     public void startDaemon(){
@@ -43,6 +47,7 @@ public class ServerDaemon {
                 ClientThread tClient  = new ClientThread(this,client);
                 alClients.add(tClient);
                 tClient.start();
+                
             }
             
             closeCommunication();
@@ -58,8 +63,20 @@ public class ServerDaemon {
             alClients.get(i).closeCommunication();
     }
     
-    void sendAll(String message) {
-        for(int i = 0; i < alClients.size(); i++)
-            alClients.get(i).sendMessage(message);
+    void sendAll(String message,String sroom) {
+        for(int i = 0; i < alClients.size(); i++){
+            ClientThread client = alClients.get(i);
+            if(client.getIroomId() == hmchatRooms.get(sroom)){
+                client.sendMessage(message);
+            }
+        }
+            
+    }
+
+    void createRoom(String schatRoom, ClientThread client) {
+        hmchatRooms.put(schatRoom, ihereWeGo);
+        client.setIclientId(ihereWeGo);
+        ihereWeGo++;
+        client.sendMessage("1");
     }
 }

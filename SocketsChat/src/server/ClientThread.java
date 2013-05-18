@@ -19,7 +19,24 @@ public class ClientThread extends Thread {
     private Socket client;
     private ObjectInputStream dis;
     private DataOutputStream dos;
-    private int id;
+    private int iclientId;
+    private int iroomId;
+
+    public int getIclientId() {
+        return iclientId;
+    }
+
+    public void setIclientId(int iclientId) {
+        this.iclientId = iclientId;
+    }
+
+    public int getIroomId() {
+        return iroomId;
+    }
+
+    public void setIroomId(int iroomId) {
+        this.iroomId = iroomId;
+    }
     
     ClientThread(ServerDaemon server, Socket client){
         this.server = server;
@@ -74,9 +91,22 @@ public class ClientThread extends Thread {
             try{
                 //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
-                String message = msgD.get("susername").toString() + ": " + 
-                        msgD.get("message").toString();
-                server.sendAll(message);
+                String susername = msgD.get("susername").toString();
+                String msg = msgD.get("message").toString();
+                String schatRoom = msgD.get("chatRoom").toString();
+                int itype = Integer.parseInt(msgD.get("type").toString());
+                switch(itype){
+                    case 1:
+                        server.createRoom(schatRoom, this);
+                        
+                        break;
+                    case 2:
+                        
+                        break;
+                    default:
+                        server.sendAll(susername + ": " + msg, schatRoom);
+                        break;
+                 }
                 
             }catch(IOException | ClassNotFoundException ioe){
                 System.out.println("error sending message: " + ioe + "\n");
