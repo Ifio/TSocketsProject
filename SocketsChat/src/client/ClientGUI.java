@@ -47,11 +47,6 @@ public class ClientGUI extends javax.swing.JFrame {
         //get chatRoom list
         bttnNewChatRoom.setEnabled(true);
         txtAChat.setText("Welcome " + susername + "!" + "\n");
-        HashMap<String,Integer> hmchatRooms = new HashMap();
-        hmchatRooms.put("a", 3);
-        System.out.println(hmchatRooms.get("a"));
-        
-        
      }
     
      void addRoom(String sroom){

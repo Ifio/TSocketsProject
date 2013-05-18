@@ -62,7 +62,7 @@ public class ServerDaemon {
     void setNewClient(ClientThread ctclient, String susername){
         hmclients.put(icurrentClientId, susername);
         ctclient.setIclientId(icurrentClientId);
-        System.out.println(hmclients.get(icurrentClientId));
+        System.out.println(hmclients);
         icurrentClientId++;
     }
     
@@ -71,19 +71,25 @@ public class ServerDaemon {
             alclients.get(i).closeCommunication();
     }
     
-    void sendAll(String message,String schatRoom) {
+    void sendAll(String message, int itype, String schatRoom) {
         for(int i = 0; i < alclients.size(); i++){
             ClientThread client = alclients.get(i);
-            System.out.println(client.getSchatRoom());
-            System.out.println(schatRoom);
             if(client.getSchatRoom().equals(schatRoom)){
-                client.sendMessage(message);
+                client.sendMessage(message, itype);
             }
+        }
+    }
+    
+    void fetchRooms(ClientThread client){
+        for(int i = 0; i < alchatRooms.size(); i++){
+            client.sendMessage(alchatRooms.get(i), ClientThread.NEW_ROOM);
         }
     }
 
     void createRoom(String schatRoom, ClientThread client) {
         alchatRooms.add(schatRoom);
-        client.sendMessage("1");
+        for(int i = 0; i < alclients.size(); i++){
+            alclients.get(i).sendMessage(schatRoom, ClientThread.NEW_ROOM);
+        }
     }
 }

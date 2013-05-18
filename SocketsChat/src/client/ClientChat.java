@@ -1,7 +1,7 @@
 package client;
 
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import org.json.simple.JSONObject;
@@ -16,12 +16,13 @@ import org.json.simple.JSONObject;
 public class ClientChat extends Thread {
 
     private ClientGUI clientGUI;
-    private DataInputStream dis;
+    private ObjectInputStream dis;
     private ObjectOutputStream dos;
     private Socket client;
     private String susername;
     private String schatRoom = "";
-    private int iclientId;
+    private int iclientId = -1;
+    
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
@@ -36,7 +37,7 @@ public class ClientChat extends Thread {
             client = new Socket(shost, iport);
             this.susername = susername;
             dos = new ObjectOutputStream(client.getOutputStream());
-            dis = new DataInputStream(client.getInputStream());
+            dis = new ObjectInputStream(client.getInputStream());
 
         } catch (IOException ioe) {
             System.out.println("Error connecting to the server: " + ioe + "\n");
@@ -54,7 +55,8 @@ public class ClientChat extends Thread {
     
     public void sendMessage(String message, int itype) {
         JSONObject msg = new JSONObject();
-        msg.put("susername", susername);
+        msg.put("username", susername);
+        msg.put("clientId", new Integer(iclientId));
         msg.put("chatRoom", schatRoom);
         msg.put("message", message);
         msg.put("type", new Integer(itype));
@@ -68,23 +70,29 @@ public class ClientChat extends Thread {
 
     @Override
     public void run() {
-        boolean bRunning = true;
-
-        while (bRunning) {
+        boolean brunning = true;
+        
+        while (brunning) {
             try {
-                String smsg = dis.readUTF();
-                switch(smsg){
-                     
-                    case "1":
-                        clientGUI.addRoom("qwerty");  
+                //recieve and decode the JSON objects sent by the clients
+                JSONObject msgD = (JSONObject) dis.readObject();
+                iclientId = Integer.parseInt(msgD.get("clientId").toString());
+                String msg = msgD.get("message").toString();
+                int itype = Integer.parseInt(msgD.get("type").toString());
+                switch(itype){
+                    case MESSAGE:
+                        clientGUI.recieveMessage(msg);
                         break;
-                    default:    
-                }
-                clientGUI.recieveMessage(smsg);
-                
-            } catch (IOException ioe) {
+                    case NEW_ROOM:
+                        clientGUI.addRoom(msg);
+                        break;
+                    default:
+                        
+                        break;
+                 }
+            } catch (IOException | ClassNotFoundException ioe) {
                 System.out.println("Error recieving message: " + ioe + "\n");
-                bRunning = false;
+                brunning = false;
             }
         }
     }

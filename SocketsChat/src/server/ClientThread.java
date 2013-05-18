@@ -1,11 +1,9 @@
 package server;
 
-import client.ClientChat;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import org.json.simple.JSONObject;
 
 /**
@@ -20,9 +18,14 @@ public class ClientThread extends Thread {
     private ServerDaemon server;
     private Socket client;
     private ObjectInputStream dis;
-    private DataOutputStream dos;
+    private ObjectOutputStream dos;
     private String schatRoom;
     private int iclientId;
+    
+    public static final int NEW_CLIENT = 0;
+    public static final int MESSAGE = 1;
+    public static final int NEW_ROOM = 2;
+    public static final int ENTER_ROOM = 3;
 
     ClientThread(ServerDaemon server, Socket client){
         this.server = server;
@@ -30,7 +33,7 @@ public class ClientThread extends Thread {
         
         try{
             //obtain input and output streams from the client... OH YEAH!
-            dos = new DataOutputStream(client.getOutputStream());
+            dos = new ObjectOutputStream(client.getOutputStream());
             dis = new ObjectInputStream(client.getInputStream());
             
             //TODO alert new clients connection in the ROOM!!!! BOO!!!
@@ -53,14 +56,13 @@ public class ClientThread extends Thread {
         return schatRoom;
     }
     
-    void sendMessage(String smessage){
-//        JSONObject msg = new JSONObject();
-//        msg.put("susername", susername);
-//        msg.put("chatRoom", schatRoom);
-//        msg.put("message", message);
-//        msg.put("type", new Integer(itype));
+    void sendMessage(String smessage, int itype){
+        JSONObject msg = new JSONObject();
+        msg.put("clientId", new Integer(iclientId));
+        msg.put("message", smessage);
+        msg.put("type", new Integer(itype));
         try{
-            dos.writeUTF(smessage);
+            dos.writeObject(msg);
         }catch(IOException ioe){
             System.out.println("Error sending message: " + ioe + "\n");
         }
@@ -89,24 +91,27 @@ public class ClientThread extends Thread {
     
     @Override
     public void run(){
-        boolean bRunning = true;
+        boolean brunning = true;
         
-        while(bRunning){
+        while(brunning){
             try{
                 //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
-                String susername = msgD.get("susername").toString();
+                String susername = msgD.get("username").toString();
+                iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
                 schatRoom = msgD.get("chatRoom").toString();
                 int itype = Integer.parseInt(msgD.get("type").toString());
                 switch(itype){
-                    case ClientChat.NEW_CLIENT:
+                    case NEW_CLIENT:
                         server.setNewClient(this, susername);
+                        server.fetchRooms(this);
                         break;
-                    case ClientChat.MESSAGE:
-                        server.sendAll(susername + ": " + msg, schatRoom);
+                    case MESSAGE:
+                        msg = susername + ": " + msg;
+                        server.sendAll(msg, itype, schatRoom);
                         break;
-                    case ClientChat.NEW_ROOM:
+                    case NEW_ROOM:
                         server.createRoom(schatRoom, this);
                         break;
                     default:
@@ -118,7 +123,7 @@ public class ClientThread extends Thread {
                 System.out.println("error sending message: " + ioe + "\n");
             }
         }
-        if(!bRunning)
+        if(!brunning)
             closeCommunication();
     }
     
