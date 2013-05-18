@@ -77,7 +77,6 @@ public class ClientThread extends Thread {
                 String message = msgD.get("susername").toString() + ": " + 
                         msgD.get("message").toString();
                 server.sendAll(message);
-               
                 
             }catch(IOException | ClassNotFoundException ioe){
                 System.out.println("error sending message: " + ioe + "\n");

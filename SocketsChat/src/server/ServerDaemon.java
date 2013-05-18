@@ -18,7 +18,7 @@ public class ServerDaemon {
     private int iport = 2500;
     private boolean bwaiting;
     private ArrayList<ClientThread> alClients;
-    
+    private ArrayList<ArrayList<ClientThread>> salitas;
     
     //constructor
     ServerDaemon(){
@@ -34,7 +34,6 @@ public class ServerDaemon {
         
         bwaiting = true;
         ServerSocket server;
-        
         try{
             server = new ServerSocket(iport);
             //wait and accept new connections
@@ -50,7 +49,7 @@ public class ServerDaemon {
             
         }catch(IOException ioe){
             System.out.println("Sorry, failed to create server socket: " + ioe + "\n");
-            
+            bwaiting = false;
         }
     }
     
