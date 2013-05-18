@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import org.json.simple.JSONObject;
 
 /**
@@ -26,10 +27,14 @@ public class ClientChat extends Thread {
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
-    public static final int ENTER_ROOM = 3;
+    public static final int JOIN_ROOM = 3;
 
     ClientChat(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
+    }
+
+    public void setSchatRoom(String schatRoom) {
+        this.schatRoom = schatRoom;
     }
 
     public void createConn(String shost, int iport, String susername) {
@@ -78,13 +83,18 @@ public class ClientChat extends Thread {
                 JSONObject msgD = (JSONObject) dis.readObject();
                 iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
+                ArrayList<String> alchatRooms = 
+                        (ArrayList<String>) msgD.get("chatRooms");
                 int itype = Integer.parseInt(msgD.get("type").toString());
                 switch(itype){
                     case MESSAGE:
                         clientGUI.recieveMessage(msg);
                         break;
                     case NEW_ROOM:
-                        clientGUI.addRoom(msg);
+                        clientGUI.addRooms(alchatRooms);
+                        break;
+                    case JOIN_ROOM:
+                        
                         break;
                     default:
                         

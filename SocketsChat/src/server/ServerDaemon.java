@@ -75,21 +75,45 @@ public class ServerDaemon {
         for(int i = 0; i < alclients.size(); i++){
             ClientThread client = alclients.get(i);
             if(client.getSchatRoom().equals(schatRoom)){
-                client.sendMessage(message, itype);
+                client.sendMessage(message, alchatRooms, itype);
             }
         }
     }
     
     void fetchRooms(ClientThread client){
-        for(int i = 0; i < alchatRooms.size(); i++){
-            client.sendMessage(alchatRooms.get(i), ClientThread.NEW_ROOM);
-        }
+        if(alchatRooms.size() > 0)
+            client.sendMessage("", alchatRooms, ClientThread.NEW_ROOM);
     }
 
-    void createRoom(String schatRoom, ClientThread client) {
-        alchatRooms.add(schatRoom);
+    void createRoom(ClientThread client, String schatRoomBefore) {
+        alchatRooms.add(client.getSchatRoom());
+        if (schatRoomBefore.equals("")){
+            for(int i = 0; i < alclients.size(); i++){
+                alclients.get(i).sendMessage(
+                        "", alchatRooms, ClientThread.NEW_ROOM);
+            }
+        }else{
+             updateRooms(schatRoomBefore);
+        }
+   }
+    
+    void updateRooms(String schatRoomBefore) {
+        int inumClients = 0;
         for(int i = 0; i < alclients.size(); i++){
-            alclients.get(i).sendMessage(schatRoom, ClientThread.NEW_ROOM);
+            if(schatRoomBefore.equals(alclients.get(i).getSchatRoom()))
+                inumClients++;
+        }
+        //delete the room if there aren't clients in it
+        if (inumClients == 0){
+            for(int i = 0; i < alchatRooms.size(); i++){
+                if(schatRoomBefore.equals(alchatRooms.get(i)))
+                    alchatRooms.remove(i);
+            }
+        }
+        //update rooms
+        for(int i = 0; i < alclients.size(); i++){
+            alclients.get(i).sendMessage(
+                    "", alchatRooms, ClientThread.NEW_ROOM);
         }
     }
 }

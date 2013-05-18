@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import org.json.simple.JSONObject;
 
 /**
@@ -25,7 +26,7 @@ public class ClientThread extends Thread {
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
-    public static final int ENTER_ROOM = 3;
+    public static final int JOIN_ROOM = 3;
 
     ClientThread(ServerDaemon server, Socket client){
         this.server = server;
@@ -56,10 +57,11 @@ public class ClientThread extends Thread {
         return schatRoom;
     }
     
-    void sendMessage(String smessage, int itype){
+    void sendMessage(String smessage, ArrayList<String> alchatRooms, int itype){
         JSONObject msg = new JSONObject();
         msg.put("clientId", new Integer(iclientId));
         msg.put("message", smessage);
+        msg.put("chatRooms", new ArrayList(alchatRooms));
         msg.put("type", new Integer(itype));
         try{
             dos.writeObject(msg);
@@ -100,6 +102,7 @@ public class ClientThread extends Thread {
                 String susername = msgD.get("username").toString();
                 iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
+                String schatRoomBefore = schatRoom;
                 schatRoom = msgD.get("chatRoom").toString();
                 int itype = Integer.parseInt(msgD.get("type").toString());
                 switch(itype){
@@ -112,7 +115,10 @@ public class ClientThread extends Thread {
                         server.sendAll(msg, itype, schatRoom);
                         break;
                     case NEW_ROOM:
-                        server.createRoom(schatRoom, this);
+                        server.createRoom(this, schatRoomBefore);
+                        break;
+                    case JOIN_ROOM:
+                        server.updateRooms(schatRoomBefore);
                         break;
                     default:
                         
