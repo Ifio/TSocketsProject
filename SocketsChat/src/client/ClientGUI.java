@@ -18,7 +18,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private ClientChat client;
     private Dimension sdim;
-    
+
     /**
      * Creates new form ClientGUI
      */
@@ -28,11 +28,11 @@ public class ClientGUI extends javax.swing.JFrame {
         sdim = Toolkit.getDefaultToolkit().getScreenSize();
         int w = this.getSize().width;
         int h = this.getSize().height;
-        int x = (sdim.width - w)/2;
-        int y = (sdim.height - h)/2;
-        
-        this.setLocation(x,y);
-     }
+        int x = (sdim.width - w) / 2;
+        int y = (sdim.height - h) / 2;
+
+        this.setLocation(x, y);
+    }
 
     public void createClient(String shost, int iport, String susername) {
         client = new ClientChat(this);
@@ -40,27 +40,35 @@ public class ClientGUI extends javax.swing.JFrame {
         client.start();
         //Say to the server who the fuck i am
         client.sendMessage("", ClientChat.NEW_CLIENT);
-        
+
         bttnConnectHost.setEnabled(false);
-        //get chatRoom list
         bttnNewChatRoom.setEnabled(true);
+        bttnChatRooms.setEnabled(true);
+        bttnUsers.setEnabled(true);
         bttnJoin.setEnabled(true);
         lblchatRoom.setText("Pending");
         txtAChat.setText("Welcome " + susername + "!" + "\n");
-     }
-    
-     void addRooms(ArrayList<String> alchatRooms){
-         DefaultListModel dlm = new DefaultListModel();
-         for (int i = 0; i < alchatRooms.size(); i++) {
-             dlm.addElement(alchatRooms.get(i));
-         }
-         listChatRooms.setModel(dlm);
-     }
-     
+    }
+
+    void addRooms(ArrayList<String> alchatRooms) {
+        DefaultListModel dlm = new DefaultListModel();
+        for (int i = 0; i < alchatRooms.size(); i++) {
+            dlm.addElement(alchatRooms.get(i));
+        }
+        listChatRooms.setModel(dlm);
+    }
+
     void recieveMessage(String message) {
         txtAChat.append(message + "\n");
     }
-  
+
+    void appendInfo(String title, ArrayList<String> alinfo) {
+        txtAChat.append(title + ":\n");
+        for (String sinfo : alinfo) {
+            txtAChat.append("- " + sinfo + "\n");
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,6 +110,8 @@ public class ClientGUI extends javax.swing.JFrame {
         label_chatRooms2 = new javax.swing.JLabel();
         label_chatRooms3 = new javax.swing.JLabel();
         lblchatRoom = new javax.swing.JLabel();
+        bttnUsers = new javax.swing.JButton();
+        bttnChatRooms = new javax.swing.JButton();
 
         menu1.setLabel("File");
         menuBar1.add(menu1);
@@ -179,6 +189,7 @@ public class ClientGUI extends javax.swing.JFrame {
         });
 
         bttnConnectHost.setText("Connect");
+        bttnConnectHost.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         bttnConnectHost.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bttnConnectHostActionPerformed(evt);
@@ -212,6 +223,22 @@ public class ClientGUI extends javax.swing.JFrame {
         lblchatRoom.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         lblchatRoom.setText(" ");
 
+        bttnUsers.setText("Users info");
+        bttnUsers.setEnabled(false);
+        bttnUsers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttnUsersActionPerformed(evt);
+            }
+        });
+
+        bttnChatRooms.setText("Chat rooms info");
+        bttnChatRooms.setEnabled(false);
+        bttnChatRooms.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bttnChatRoomsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -224,12 +251,14 @@ public class ClientGUI extends javax.swing.JFrame {
                             .addComponent(jScrollPane1)
                             .addComponent(txtSend))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(label_chatRooms1)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bttnJoin, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bttnNewChatRoom, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(bttnDisconnect, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(bttnJoin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bttnNewChatRoom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bttnDisconnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bttnUsers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(bttnChatRooms, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
                         .addGap(20, 20, 20))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,11 +306,15 @@ public class ClientGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(bttnJoin)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bttnNewChatRoom)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bttnChatRooms)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(bttnNewChatRoom))
+                        .addComponent(bttnUsers))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -311,7 +344,7 @@ public class ClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_bttnDisconnectActionPerformed
 
     private void bttnConnectHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnConnectHostActionPerformed
-       if ("".equals(txtHostAdd.getText()) || "".equals(txtUsername.getText()) || "".equals(txtPort.getText())) {
+        if ("".equals(txtHostAdd.getText()) || "".equals(txtUsername.getText()) || "".equals(txtPort.getText())) {
             System.out.println("Please fill out all needed parameters");
         } else {
             String shost = txtHostAdd.getText();
@@ -328,22 +361,40 @@ public class ClientGUI extends javax.swing.JFrame {
     private void bttnNewChatRoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnNewChatRoomActionPerformed
         String schatRoom;
         schatRoom = JOptionPane.showInputDialog(
-                null,"Enter chat room name: ","Creating new chat room",1);
-        if(schatRoom != null){
-            txtAChat.setText(null);
-            client.createRoom(schatRoom);
-            lblchatRoom.setText(schatRoom);
+                null, "Enter chat room name: ", "Creating new chat room", 1);
+        if (schatRoom != null) {
+            if (!client.getAlchatRooms().contains(schatRoom)) {
+                txtAChat.setText(null);
+                client.createRoom(schatRoom);
+                lblchatRoom.setText(schatRoom);
+            } else {
+                JOptionPane.showMessageDialog(null, schatRoom
+                        + " already exists, try another one\n", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_bttnNewChatRoomActionPerformed
 
     private void bttnJoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnJoinActionPerformed
-        String schatRoom = (String) listChatRooms.getSelectedValue();
-        client.setSchatRoom(schatRoom);
-        txtAChat.setText(null);
-        client.sendMessage(client.getSusername() + " has joined to the room!", 
-                ClientChat.JOIN_ROOM);
-        lblchatRoom.setText(schatRoom);
+        if (!listChatRooms.isSelectionEmpty()) {
+            String schatRoom = (String) listChatRooms.getSelectedValue();
+            if (!schatRoom.equals(client.getSchatRoom())) {
+                client.setSchatRoom(schatRoom);
+                txtAChat.setText(null);
+                client.sendMessage(client.getSusername()
+                        + " has joined to the room!", ClientChat.JOIN_ROOM);
+                lblchatRoom.setText(schatRoom);
+            }
+        }
     }//GEN-LAST:event_bttnJoinActionPerformed
+
+    private void bttnChatRoomsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnChatRoomsActionPerformed
+        client.sendMessage("", ClientChat.ROOMS_INFO);
+    }//GEN-LAST:event_bttnChatRoomsActionPerformed
+
+    private void bttnUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnUsersActionPerformed
+        client.sendMessage("", ClientChat.USERS_INFO);
+    }//GEN-LAST:event_bttnUsersActionPerformed
 
     /**
      * @param args the command line arguments
@@ -375,10 +426,12 @@ public class ClientGUI extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bttnChatRooms;
     private javax.swing.JButton bttnConnectHost;
     private javax.swing.JButton bttnDisconnect;
     private javax.swing.JButton bttnJoin;
     private javax.swing.JButton bttnNewChatRoom;
+    private javax.swing.JButton bttnUsers;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -408,5 +461,4 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextField txtSend;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
-
 }

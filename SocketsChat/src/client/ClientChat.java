@@ -22,15 +22,19 @@ public class ClientChat extends Thread {
     private Socket client;
     private String susername;
     private String schatRoom = "";
+    private ArrayList<String> alchatRooms;
     private int iclientId = 0;
-    
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
     public static final int JOIN_ROOM = 3;
+    public static final int ROOMS_INFO = 4;
+    public static final int USERS_INFO = 5;
+    public static final int DISCONNECT = 6;
 
     ClientChat(ClientGUI clientGUI) {
         this.clientGUI = clientGUI;
+        alchatRooms = new ArrayList();
     }
 
     //Getters and Setters
@@ -44,6 +48,10 @@ public class ClientChat extends Thread {
 
     public void setSchatRoom(String schatRoom) {
         this.schatRoom = schatRoom;
+    }
+
+    public ArrayList<String> getAlchatRooms() {
+        return alchatRooms;
     }
 
     public void createConn(String shost, int iport, String susername) {
@@ -62,7 +70,7 @@ public class ClientChat extends Thread {
         sendMessage(susername + " has joined to the room!",
                 ClientChat.NEW_ROOM);
     }
-    
+
     public void sendMessage(String message, int itype) {
         JSONObject msg = new JSONObject();
         msg.put("username", susername);
@@ -70,7 +78,6 @@ public class ClientChat extends Thread {
         msg.put("chatRoom", schatRoom);
         msg.put("message", message);
         msg.put("type", new Integer(itype));
-
         try {
             dos.writeObject(msg);
         } catch (IOException ioe) {
@@ -81,30 +88,39 @@ public class ClientChat extends Thread {
     @Override
     public void run() {
         boolean brunning = true;
-        
+
         while (brunning) {
             try {
                 //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
                 iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
-                ArrayList<String> alchatRooms = 
-                        (ArrayList<String>) msgD.get("chatRooms");
+                alchatRooms = (ArrayList<String>) msgD.get("chatRooms");
                 int itype = Integer.parseInt(msgD.get("type").toString());
-                switch(itype){
+                switch (itype) {
                     case MESSAGE:
                         clientGUI.recieveMessage(msg);
                         break;
                     case NEW_ROOM:
                         clientGUI.addRooms(alchatRooms);
                         break;
-                    case JOIN_ROOM:
-                        
+                    case ROOMS_INFO:
+                        ArrayList<String> alroomsInfo =
+                                (ArrayList<String>) msgD.get("roomsInfo");
+                        clientGUI.appendInfo("Rooms", alroomsInfo);
+                        break;
+                    case USERS_INFO:
+                        ArrayList<String> alusersInfo =
+                                (ArrayList<String>) msgD.get("usersInfo");
+                        clientGUI.appendInfo("Users", alusersInfo);
+                        break;
+                    case DISCONNECT:
+                        //TODO
                         break;
                     default:
-                        
+
                         break;
-                 }
+                }
             } catch (IOException | ClassNotFoundException ioe) {
                 System.out.println("Error recieving message: " + ioe + "\n");
                 brunning = false;
