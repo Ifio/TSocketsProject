@@ -23,7 +23,6 @@ public class ClientChat extends Thread {
     private String susername;
     private String schatRoom = "";
     private ArrayList<String> alchatRooms;
-    private int iclientId = 0;
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
@@ -74,7 +73,6 @@ public class ClientChat extends Thread {
     public void sendMessage(String message, int itype) {
         JSONObject msg = new JSONObject();
         msg.put("username", susername);
-        msg.put("clientId", new Integer(iclientId));
         msg.put("chatRoom", schatRoom);
         msg.put("message", message);
         msg.put("type", new Integer(itype));
@@ -93,7 +91,6 @@ public class ClientChat extends Thread {
             try {
                 //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
-                iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
                 alchatRooms = (ArrayList<String>) msgD.get("chatRooms");
                 int itype = Integer.parseInt(msgD.get("type").toString());

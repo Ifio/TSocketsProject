@@ -96,7 +96,6 @@ public class ClientThread extends Thread {
             ArrayList<String> alroomsInfo, ArrayList<String> alusersInfo,
             int itype) {
         JSONObject msg = new JSONObject();
-        msg.put("clientId", new Integer(iclientId));
         msg.put("message", smessage);
         msg.put("chatRooms", new ArrayList(alchatRooms));
         msg.put("type", new Integer(itype));
@@ -124,7 +123,6 @@ public class ClientThread extends Thread {
                 //recieve and decode the JSON objects sent by the clients
                 JSONObject msgD = (JSONObject) dis.readObject();
                 String susername = msgD.get("username").toString();
-                iclientId = Integer.parseInt(msgD.get("clientId").toString());
                 String msg = msgD.get("message").toString();
                 String schatRoomBefore = schatRoom;
                 schatRoom = msgD.get("chatRoom").toString();
@@ -132,7 +130,6 @@ public class ClientThread extends Thread {
                 switch (itype) {
                     case NEW_CLIENT:
                         server.setNewClient(this, susername);
-                        System.out.println(iclientId);
                         server.fetchRooms(this);
                         break;
                     case MESSAGE:

@@ -63,10 +63,13 @@ public class ClientGUI extends javax.swing.JFrame {
     }
 
     void appendInfo(String title, ArrayList<String> alinfo) {
-        txtAChat.append(title + ":\n");
-        for (String sinfo : alinfo) {
-            txtAChat.append("- " + sinfo + "\n");
-        }
+        if(!alinfo.isEmpty()){
+            txtAChat.append(title + ":\n");
+            for (String sinfo : alinfo) {
+                txtAChat.append("- " + sinfo + "\n");
+            }
+        }else
+            txtAChat.append("There aren't any " + title.toLowerCase() + "\n");
     }
 
     /**

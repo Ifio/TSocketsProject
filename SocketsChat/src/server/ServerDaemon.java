@@ -50,9 +50,10 @@ public class ServerDaemon {
             while (bwaiting) {
                 System.out.println("Server is waiting for connections on port: " + iport);
                 Socket client = server.accept();
-                ClientThread ctclient = new ClientThread(this, client);
-                alclients.add(ctclient);
-                ctclient.start();
+                ClientThread tclient = new ClientThread(this, client);
+                tclient.setIclientId(icurrentClientId++);
+                alclients.add(tclient);
+                tclient.start();
 
             }
 
@@ -65,10 +66,8 @@ public class ServerDaemon {
     }
 
     void setNewClient(ClientThread tclient, String susername) {
-        hmclients.put(icurrentClientId, susername);
-        tclient.setIclientId(icurrentClientId);
+        hmclients.put(tclient.getIclientId(), susername);
         System.out.println(hmclients);
-        icurrentClientId++;
     }
 
     private void closeCommunication() {
