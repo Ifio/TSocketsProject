@@ -70,6 +70,15 @@ public class ClientThread extends Thread {
         }
     }
     
+    void leaveRoom(String schatRoom){
+        if(!schatRoom.equals("")){
+            String message = 
+                    server.getHmclients().get(iclientId) + 
+                    " has left the room!";
+            server.sendAll(message, MESSAGE, schatRoom);
+        }
+    }
+    
     void closeCommunication(){
         try {
             if(dos != null) dos.close();
@@ -116,9 +125,13 @@ public class ClientThread extends Thread {
                         break;
                     case NEW_ROOM:
                         server.createRoom(this, schatRoomBefore);
+                        leaveRoom(schatRoomBefore);
+                        server.sendAll(msg, MESSAGE, schatRoom);
                         break;
                     case JOIN_ROOM:
                         server.updateRooms(schatRoomBefore);
+                        leaveRoom(schatRoomBefore);
+                        server.sendAll(msg, MESSAGE, schatRoom);
                         break;
                     default:
                         

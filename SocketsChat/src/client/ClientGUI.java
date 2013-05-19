@@ -329,14 +329,19 @@ public class ClientGUI extends javax.swing.JFrame {
         String schatRoom;
         schatRoom = JOptionPane.showInputDialog(
                 null,"Enter chat room name: ","Creating new chat room",1);
-        client.createRoom(schatRoom);
-        lblchatRoom.setText(schatRoom);
+        if(schatRoom != null){
+            txtAChat.setText(null);
+            client.createRoom(schatRoom);
+            lblchatRoom.setText(schatRoom);
+        }
     }//GEN-LAST:event_bttnNewChatRoomActionPerformed
 
     private void bttnJoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnJoinActionPerformed
         String schatRoom = (String) listChatRooms.getSelectedValue();
         client.setSchatRoom(schatRoom);
-        client.sendMessage("", ClientChat.JOIN_ROOM);
+        txtAChat.setText(null);
+        client.sendMessage(client.getSusername() + " has joined to the room!", 
+                ClientChat.JOIN_ROOM);
         lblchatRoom.setText(schatRoom);
     }//GEN-LAST:event_bttnJoinActionPerformed
 

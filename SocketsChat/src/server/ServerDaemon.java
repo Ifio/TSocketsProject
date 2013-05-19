@@ -34,6 +34,11 @@ public class ServerDaemon {
         new ServerDaemon().startDaemon();
         
     }
+
+    //Getters and Setters
+    public HashMap<Integer, String> getHmclients() {
+        return hmclients;
+    }
     
     public void startDaemon(){
         
