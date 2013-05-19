@@ -12,7 +12,7 @@ import org.json.simple.JSONObject;
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 1.0
+ * @version 2.0
  */
 public class ClientChat extends Thread {
 
@@ -40,6 +40,10 @@ public class ClientChat extends Thread {
     public String getSusername() {
         return susername;
     }
+    
+    public void setSusername(String susername){
+        this.susername = susername;
+    }
 
     public String getSchatRoom() {
         return schatRoom;
@@ -63,6 +67,24 @@ public class ClientChat extends Thread {
             System.out.println("Error connecting to the server: " + ioe + "\n");
         }
     }
+    
+    public void deConn(String susername){
+        try{
+            closeComm(dis,dos);
+        }catch(Exception e){
+            System.out.println("Trouble disconnecting:" + e + "\n");
+        }
+    }
+    
+    public void closeComm(ObjectInputStream ois, ObjectOutputStream oos){
+        try{
+          ois.close();
+          oos.close();
+        }catch(IOException ioe){
+            System.out.println("Failed closing communication: " + ioe + "\n");
+        }
+        
+    }
 
     void createRoom(String schatRoom) {
         this.schatRoom = schatRoom;
@@ -82,6 +104,34 @@ public class ClientChat extends Thread {
             System.out.println("Error sending message: " + ioe + "\n");
         }
     }
+    
+    private void typeMessageHandler(JSONObject msgD, String msg, int itype) throws IOException {
+
+        switch (itype) {
+            case MESSAGE:
+                clientGUI.recieveMessage(msg);
+                break;
+            case NEW_ROOM:
+                clientGUI.addRooms(alchatRooms);
+                break;
+            case ROOMS_INFO:
+                ArrayList<String> alroomsInfo =
+                        (ArrayList<String>) msgD.get("roomsInfo");
+                clientGUI.appendInfo("Rooms", alroomsInfo);
+                break;
+            case USERS_INFO:
+                ArrayList<String> alusersInfo =
+                        (ArrayList<String>) msgD.get("usersInfo");
+                clientGUI.appendInfo("Users", alusersInfo);
+                break;
+            case DISCONNECT:
+                //TODO
+                break;
+            default:
+                
+                break;
+        }
+    }
 
     @Override
     public void run() {
@@ -94,30 +144,9 @@ public class ClientChat extends Thread {
                 String msg = msgD.get("message").toString();
                 alchatRooms = (ArrayList<String>) msgD.get("chatRooms");
                 int itype = Integer.parseInt(msgD.get("type").toString());
-                switch (itype) {
-                    case MESSAGE:
-                        clientGUI.recieveMessage(msg);
-                        break;
-                    case NEW_ROOM:
-                        clientGUI.addRooms(alchatRooms);
-                        break;
-                    case ROOMS_INFO:
-                        ArrayList<String> alroomsInfo =
-                                (ArrayList<String>) msgD.get("roomsInfo");
-                        clientGUI.appendInfo("Rooms", alroomsInfo);
-                        break;
-                    case USERS_INFO:
-                        ArrayList<String> alusersInfo =
-                                (ArrayList<String>) msgD.get("usersInfo");
-                        clientGUI.appendInfo("Users", alusersInfo);
-                        break;
-                    case DISCONNECT:
-                        //TODO
-                        break;
-                    default:
 
-                        break;
-                }
+                typeMessageHandler(msgD, msg, itype);
+
             } catch (IOException | ClassNotFoundException ioe) {
                 System.out.println("Error recieving message: " + ioe + "\n");
                 brunning = false;

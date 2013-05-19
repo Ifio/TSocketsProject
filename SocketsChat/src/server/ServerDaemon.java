@@ -11,7 +11,7 @@ import java.util.HashMap;
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 1.0
+ * @version 2.0
  */
 public class ServerDaemon {
 

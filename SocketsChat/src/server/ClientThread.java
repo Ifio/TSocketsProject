@@ -12,7 +12,7 @@ import org.json.simple.JSONObject;
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 1.0
+ * @version 2.0
  */
 public class ClientThread extends Thread {
 
@@ -114,6 +114,41 @@ public class ClientThread extends Thread {
         }
     }
 
+    private void commandsHandler(String susername, String msg, String schatRoomBefore, int itype) {
+
+        switch (itype) {
+            case NEW_CLIENT:
+                server.setNewClient(this, susername);
+                server.fetchRooms(this);
+                break;
+            case MESSAGE:
+                msg = susername + ": " + msg;
+                server.sendAll(msg, itype, schatRoom);
+                break;
+            case NEW_ROOM:
+                server.createRoom(this, schatRoomBefore);
+                leaveRoom(schatRoomBefore);
+                server.sendAll(msg, MESSAGE, schatRoom);
+                break;
+            case JOIN_ROOM:
+                server.updateRooms(schatRoomBefore);
+                leaveRoom(schatRoomBefore);
+                server.sendAll(msg, MESSAGE, schatRoom);
+                break;
+            case ROOMS_INFO:
+                server.roomsInfo(this);
+                break;
+            case USERS_INFO:
+                server.usersInfo(this);
+                break;
+            case DISCONNECT:
+                //TODO
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public void run() {
         boolean brunning = true;
@@ -127,37 +162,7 @@ public class ClientThread extends Thread {
                 String schatRoomBefore = schatRoom;
                 schatRoom = msgD.get("chatRoom").toString();
                 int itype = Integer.parseInt(msgD.get("type").toString());
-                switch (itype) {
-                    case NEW_CLIENT:
-                        server.setNewClient(this, susername);
-                        server.fetchRooms(this);
-                        break;
-                    case MESSAGE:
-                        msg = susername + ": " + msg;
-                        server.sendAll(msg, itype, schatRoom);
-                        break;
-                    case NEW_ROOM:
-                        server.createRoom(this, schatRoomBefore);
-                        leaveRoom(schatRoomBefore);
-                        server.sendAll(msg, MESSAGE, schatRoom);
-                        break;
-                    case JOIN_ROOM:
-                        server.updateRooms(schatRoomBefore);
-                        leaveRoom(schatRoomBefore);
-                        server.sendAll(msg, MESSAGE, schatRoom);
-                        break;
-                    case ROOMS_INFO:
-                        server.roomsInfo(this);
-                        break;
-                    case USERS_INFO:
-                        server.usersInfo(this);
-                        break;
-                    case DISCONNECT:
-                        //TODO
-                        break;
-                    default:
-                        break;
-                }
+                commandsHandler(susername, msg, schatRoomBefore, itype);
 
             } catch (IOException | ClassNotFoundException ioe) {
                 System.out.println("error sending message: " + ioe + "\n");

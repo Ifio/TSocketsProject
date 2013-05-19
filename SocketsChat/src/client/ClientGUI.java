@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 1.0
+ * @version 2.0
  */
 public class ClientGUI extends javax.swing.JFrame {
 
@@ -25,13 +25,17 @@ public class ClientGUI extends javax.swing.JFrame {
     public ClientGUI() {
         initComponents();
         //Centering the frame
-        sdim = Toolkit.getDefaultToolkit().getScreenSize();
+        getCenterPosition();
+    }
+    
+    private void getCenterPosition(){
+         sdim = Toolkit.getDefaultToolkit().getScreenSize();
         int w = this.getSize().width;
         int h = this.getSize().height;
         int x = (sdim.width - w) / 2;
         int y = (sdim.height - h) / 2;
-
         this.setLocation(x, y);
+        
     }
 
     public void createClient(String shost, int iport, String susername) {
@@ -63,13 +67,14 @@ public class ClientGUI extends javax.swing.JFrame {
     }
 
     void appendInfo(String title, ArrayList<String> alinfo) {
-        if(!alinfo.isEmpty()){
+        if (!alinfo.isEmpty()) {
             txtAChat.append(title + ":\n");
             for (String sinfo : alinfo) {
                 txtAChat.append("- " + sinfo + "\n");
             }
-        }else
+        } else {
             txtAChat.append("There aren't any " + title.toLowerCase() + "\n");
+        }
     }
 
     /**
@@ -255,21 +260,21 @@ public class ClientGUI extends javax.swing.JFrame {
                             .addComponent(txtSend))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(label_chatRooms1)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(bttnJoin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bttnNewChatRoom, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bttnDisconnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bttnUsers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bttnChatRooms, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
+                            .addComponent(bttnChatRooms, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
+                            .addComponent(label_chatRooms1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(20, 20, 20))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(label_chatRooms2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(lblchatRoom)
-                                .addGap(20, 20, 20)
+                                .addGap(28, 28, 28)
                                 .addComponent(label_chatRooms3))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(label_username, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -283,7 +288,7 @@ public class ClientGUI extends javax.swing.JFrame {
                                 .addComponent(label_port)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(bttnConnectHost, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
@@ -330,7 +335,26 @@ public class ClientGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSendKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSendKeyReleased
+        keyBHandler(evt);
+    }//GEN-LAST:event_txtSendKeyReleased
+
+    private void bttnDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnDisconnectActionPerformed
+        String susernameD = client.getSusername();
+        String deconnMessage = susernameD + "has disconnected";
+        int option = JOptionPane.showConfirmDialog(null,"Are you sure you want to disconnect?");
+        if(option == JOptionPane.YES_OPTION){
+            System.out.println(deconnMessage);
+           System.exit(1);
+        }else if(option == JOptionPane.NO_OPTION){
+            
+        }else{
+            
+        }
+    }//GEN-LAST:event_bttnDisconnectActionPerformed
+
+    private void keyBHandler(KeyEvent evt) {
         int key = evt.getKeyCode();
+
         switch (key) {
             case KeyEvent.VK_ENTER:
                 Toolkit.getDefaultToolkit().beep();
@@ -340,24 +364,46 @@ public class ClientGUI extends javax.swing.JFrame {
             case KeyEvent.VK_ESCAPE:
                 System.exit(1);
         }
-    }//GEN-LAST:event_txtSendKeyReleased
+    }
 
-    private void bttnDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnDisconnectActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_bttnDisconnectActionPerformed
+    public boolean isInteger(String s) {
+        try {
+            int iport = Integer.parseInt(s);
+        } catch (NumberFormatException nfe) {
+            //System.out.println("Please enter a correct port number");
+            return false;
+        }
+        return true;
+    }
+
+    public int intConverter(String s) {
+        String ort;
+        if (isInteger(s)) {
+            return Integer.parseInt(s);
+        } else {
+            ort = JOptionPane.showInputDialog(null, "Please Enter a valid Port: ",
+                    "Error Port Number", 1);
+        }
+        txtPort.setText(ort);
+        return intConverter(ort);
+    }
 
     private void bttnConnectHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnConnectHostActionPerformed
-        if ("".equals(txtHostAdd.getText()) || "".equals(txtUsername.getText()) || "".equals(txtPort.getText())) {
-            System.out.println("Please fill out all needed parameters");
+
+
+        if ("".equals(txtHostAdd.getText()) || "".equals(txtUsername.getText())
+                || "".equals(txtPort.getText())) {
+            System.out.println("Please fill out all needed parameters correctly");
         } else {
             String shost = txtHostAdd.getText();
             String susername = txtUsername.getText();
-            int iport = Integer.parseInt(txtPort.getText());
-            createClient(shost, iport, susername);
+            String iport = txtPort.getText();
+            createClient(shost, intConverter(iport), susername);
             bttnDisconnect.setEnabled(true);
             txtHostAdd.setEnabled(false);
             txtUsername.setEnabled(false);
             txtPort.setEnabled(false);
+
         }
     }//GEN-LAST:event_bttnConnectHostActionPerformed
 
