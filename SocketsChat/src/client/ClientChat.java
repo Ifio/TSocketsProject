@@ -92,11 +92,11 @@ public class ClientChat extends Thread {
                 ClientChat.NEW_ROOM);
     }
 
-    public void sendMessage(String message, int itype) {
+    public void sendMessage(String smessage, int itype) {
         JSONObject msg = new JSONObject();
         msg.put("username", susername);
         msg.put("chatRoom", schatRoom);
-        msg.put("message", message);
+        msg.put("message", smessage);
         msg.put("type", new Integer(itype));
         try {
             dos.writeObject(msg);
@@ -105,7 +105,8 @@ public class ClientChat extends Thread {
         }
     }
     
-    private void typeMessageHandler(JSONObject msgD, String msg, int itype) throws IOException {
+    private void typeMessageHandler(JSONObject msgD, String msg, int itype) 
+            throws IOException {
 
         switch (itype) {
             case MESSAGE:

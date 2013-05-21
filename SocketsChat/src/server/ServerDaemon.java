@@ -85,9 +85,9 @@ public class ServerDaemon {
         }
     }
 
-    void fetchRooms(ClientThread client) {
+    void fetchRooms(ClientThread tclient) {
         if (alchatRooms.size() > 0) {
-            client.sendMessage("", alchatRooms, null, null, ClientThread.NEW_ROOM);
+            tclient.sendMessage("", alchatRooms, null, null, ClientThread.NEW_ROOM);
         }
     }
 

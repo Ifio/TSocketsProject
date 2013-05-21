@@ -114,7 +114,8 @@ public class ClientThread extends Thread {
         }
     }
 
-    private void commandsHandler(String susername, String msg, String schatRoomBefore, int itype) {
+    private void commandsHandler(String susername, String msg, 
+            String schatRoomBefore, int itype) {
 
         switch (itype) {
             case NEW_CLIENT:
