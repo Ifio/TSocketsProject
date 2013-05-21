@@ -23,6 +23,9 @@ public class ClientChat extends Thread {
     private String susername;
     private String schatRoom = "";
     private ArrayList<String> alchatRooms;
+    private boolean brunning = true;
+    
+    //Message conventions
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
@@ -40,8 +43,8 @@ public class ClientChat extends Thread {
     public String getSusername() {
         return susername;
     }
-    
-    public void setSusername(String susername){
+
+    public void setSusername(String susername) {
         this.susername = susername;
     }
 
@@ -57,33 +60,26 @@ public class ClientChat extends Thread {
         return alchatRooms;
     }
 
-    public void createConn(String shost, int iport, String susername) {
+    public void setBrunning(boolean brunning) {
+        this.brunning = brunning;
+    }
+    
+    public void createConn(String shost, int iport, String susername) throws
+            IOException {
+        client = new Socket(shost, iport);
+        this.susername = susername;
+        dos = new ObjectOutputStream(client.getOutputStream());
+        dis = new ObjectInputStream(client.getInputStream());
+    }
+
+    public void closeCommunication() {
         try {
-            client = new Socket(shost, iport);
-            this.susername = susername;
-            dos = new ObjectOutputStream(client.getOutputStream());
-            dis = new ObjectInputStream(client.getInputStream());
+            dis.close();
+            dos.close();
+            client.close();
         } catch (IOException ioe) {
-            System.out.println("Error connecting to the server: " + ioe + "\n");
+            System.out.println("Failed closing communication: " + ioe);
         }
-    }
-    
-    public void deConn(String susername){
-        try{
-            closeComm(dis,dos);
-        }catch(Exception e){
-            System.out.println("Trouble disconnecting:" + e + "\n");
-        }
-    }
-    
-    public void closeComm(ObjectInputStream ois, ObjectOutputStream oos){
-        try{
-          ois.close();
-          oos.close();
-        }catch(IOException ioe){
-            System.out.println("Failed closing communication: " + ioe + "\n");
-        }
-        
     }
 
     void createRoom(String schatRoom) {
@@ -101,11 +97,11 @@ public class ClientChat extends Thread {
         try {
             dos.writeObject(msg);
         } catch (IOException ioe) {
-            System.out.println("Error sending message: " + ioe + "\n");
+            System.out.println("Error sending message: " + ioe);
         }
     }
-    
-    private void typeMessageHandler(JSONObject msgD, String msg, int itype) 
+
+    private void typeMessageHandler(JSONObject msgD, String msg, int itype)
             throws IOException {
 
         switch (itype) {
@@ -126,18 +122,15 @@ public class ClientChat extends Thread {
                 clientGUI.appendInfo("Users", alusersInfo);
                 break;
             case DISCONNECT:
-                //TODO
+                brunning = false;
                 break;
             default:
-                
                 break;
         }
     }
 
     @Override
     public void run() {
-        boolean brunning = true;
-
         while (brunning) {
             try {
                 //recieve and decode the JSON objects sent by the clients
@@ -145,13 +138,13 @@ public class ClientChat extends Thread {
                 String msg = msgD.get("message").toString();
                 alchatRooms = (ArrayList<String>) msgD.get("chatRooms");
                 int itype = Integer.parseInt(msgD.get("type").toString());
-
                 typeMessageHandler(msgD, msg, itype);
-
             } catch (IOException | ClassNotFoundException ioe) {
-                System.out.println("Error recieving message: " + ioe + "\n");
+                System.out.println("Error recieving message: " + ioe);
                 brunning = false;
             }
         }
+        closeCommunication();
+        clientGUI.restartGUI();
     }
 }

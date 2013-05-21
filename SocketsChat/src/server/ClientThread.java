@@ -22,6 +22,8 @@ public class ClientThread extends Thread {
     private ObjectOutputStream dos;
     private String schatRoom;
     private int iclientId;
+    boolean brunning = true;
+    //Message conventions
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;
     public static final int NEW_ROOM = 2;
@@ -42,7 +44,7 @@ public class ClientThread extends Thread {
             //TODO alert new clients connection in the ROOM!!!! BOO!!!
 
         } catch (IOException ioe) {
-            System.out.println("Error obtaining data streams: " + ioe + "\n");
+            System.out.println("Error obtaining data streams: " + ioe);
         }
     }
 
@@ -74,21 +76,21 @@ public class ClientThread extends Thread {
                 dos.close();
             }
         } catch (Exception e) {
-            System.out.println("Error closing Data output stream: " + e + "\n");
+            System.out.println("Error closing Data output stream: " + e);
         }
         try {
             if (dis != null) {
                 dis.close();
             }
         } catch (Exception e) {
-            System.out.println("Error closing Data input stream: " + e + "\n");
+            System.out.println("Error closing Data input stream: " + e);
         }
         try {
             if (client != null) {
                 client.close();
             }
         } catch (Exception e) {
-            System.out.println("Error closing socket " + e + "\n");
+            System.out.println("Error closing socket " + e);
         }
     }
 
@@ -97,26 +99,29 @@ public class ClientThread extends Thread {
             int itype) {
         JSONObject msg = new JSONObject();
         msg.put("message", smessage);
-        msg.put("chatRooms", new ArrayList(alchatRooms));
         msg.put("type", new Integer(itype));
         switch (itype) {
+            case DISCONNECT:
+                break;
             case ROOMS_INFO:
                 msg.put("roomsInfo", new ArrayList(alroomsInfo));
                 break;
             case USERS_INFO:
                 msg.put("usersInfo", new ArrayList(alusersInfo));
                 break;
+            default:
+                msg.put("chatRooms", new ArrayList(alchatRooms));
+                break;
         }
         try {
             dos.writeObject(msg);
         } catch (IOException ioe) {
-            System.out.println("Error sending message: " + ioe + "\n");
+            System.out.println("Error sending message: " + ioe);
         }
     }
 
-    private void commandsHandler(String susername, String msg, 
+    private void commandsHandler(String susername, String msg,
             String schatRoomBefore, int itype) {
-
         switch (itype) {
             case NEW_CLIENT:
                 server.setNewClient(this, susername);
@@ -143,7 +148,7 @@ public class ClientThread extends Thread {
                 server.usersInfo(this);
                 break;
             case DISCONNECT:
-                //TODO
+                sendMessage("", null, null, null, DISCONNECT);
                 break;
             default:
                 break;
@@ -152,8 +157,6 @@ public class ClientThread extends Thread {
 
     @Override
     public void run() {
-        boolean brunning = true;
-
         while (brunning) {
             try {
                 //recieve and decode the JSON objects sent by the clients
@@ -164,14 +167,12 @@ public class ClientThread extends Thread {
                 schatRoom = msgD.get("chatRoom").toString();
                 int itype = Integer.parseInt(msgD.get("type").toString());
                 commandsHandler(susername, msg, schatRoomBefore, itype);
-
             } catch (IOException | ClassNotFoundException ioe) {
-                System.out.println("error sending message: " + ioe + "\n");
+                System.out.println("Error recieving message: " + ioe);
                 brunning = false;
             }
         }
-        if (!brunning) {
-            closeCommunication();
-        }
+        closeCommunication();
+        server.removeClient(iclientId, schatRoom);
     }
 }

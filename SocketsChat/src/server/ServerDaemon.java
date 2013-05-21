@@ -103,17 +103,17 @@ public class ServerDaemon {
         }
     }
 
-    void updateRooms(String schatRoomBefore) {
+    void updateRooms(String schatRoom) {
         int inumClients = 0;
         for (int i = 0; i < alclients.size(); i++) {
-            if (schatRoomBefore.equals(alclients.get(i).getSchatRoom())) {
+            if (schatRoom.equals(alclients.get(i).getSchatRoom())) {
                 inumClients++;
             }
         }
         //delete the room if there aren't clients in it
         if (inumClients == 0) {
             for (int i = 0; i < alchatRooms.size(); i++) {
-                if (schatRoomBefore.equals(alchatRooms.get(i))) {
+                if (schatRoom.equals(alchatRooms.get(i))) {
                     alchatRooms.remove(i);
                 }
             }
@@ -136,7 +136,7 @@ public class ServerDaemon {
             }
             alroomsInfo.add(alchatRooms.get(i) + " (" + iclients + " users)");
         }
-        client.sendMessage("", alchatRooms, alroomsInfo, null,
+        client.sendMessage("", null, alroomsInfo, null,
                 ClientThread.ROOMS_INFO);
     }
 
@@ -151,7 +151,20 @@ public class ServerDaemon {
                 alusersInfo.add(sclient + " is pending for choosing room");
             }
         }
-        client.sendMessage("", alchatRooms, null, alusersInfo,
+        client.sendMessage("", null, null, alusersInfo,
                 ClientThread.USERS_INFO);
+    }
+
+    void removeClient(int iclientId, String schatRoom) {
+        sendAll(hmclients.get(iclientId) + " has left the room!",
+                ClientThread.MESSAGE, schatRoom);
+        for (int i = 0; i < alclients.size(); i++) {
+            if (alclients.get(i).getIclientId() == iclientId) {
+                alclients.remove(i--);
+                hmclients.remove(iclientId);
+                updateRooms(schatRoom);
+                System.out.println("Disconnected client!");
+            }
+        }
     }
 }

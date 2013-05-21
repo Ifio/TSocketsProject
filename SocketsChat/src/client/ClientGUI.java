@@ -3,6 +3,7 @@ package client;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -27,31 +28,30 @@ public class ClientGUI extends javax.swing.JFrame {
         //Centering the frame
         getCenterPosition();
     }
-    
-    private void getCenterPosition(){
-         sdim = Toolkit.getDefaultToolkit().getScreenSize();
+
+    private void getCenterPosition() {
+        sdim = Toolkit.getDefaultToolkit().getScreenSize();
         int w = this.getSize().width;
         int h = this.getSize().height;
         int x = (sdim.width - w) / 2;
         int y = (sdim.height - h) / 2;
         this.setLocation(x, y);
-        
+
     }
 
-    public void createClient(String shost, int iport, String susername) {
-        client = new ClientChat(this);
-        client.createConn(shost, iport, susername);
-        client.start();
-        //Say to the server who the fuck i am
-        client.sendMessage("", ClientChat.NEW_CLIENT);
-
-        bttnConnectHost.setEnabled(false);
-        bttnNewChatRoom.setEnabled(true);
-        bttnChatRooms.setEnabled(true);
-        bttnUsers.setEnabled(true);
-        bttnJoin.setEnabled(true);
-        lblchatRoom.setText("Pending");
-        txtAChat.setText("Welcome " + susername + "!" + "\n");
+    private boolean createClient(String shost, int iport, String susername) {
+        try {
+            client = new ClientChat(this);
+            client.createConn(shost, iport, susername);
+            client.start();
+            client.sendMessage("", ClientChat.NEW_CLIENT);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error connecting to the server", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println(ex);
+            return false;
+        }
+        return true;
     }
 
     void addRooms(ArrayList<String> alchatRooms) {
@@ -75,6 +75,66 @@ public class ClientGUI extends javax.swing.JFrame {
         } else {
             txtAChat.append("There aren't any " + title.toLowerCase() + "\n");
         }
+    }
+    
+    
+    private void keyBHandler(KeyEvent evt) {
+        int key = evt.getKeyCode();
+
+        switch (key) {
+            case KeyEvent.VK_ENTER:
+                Toolkit.getDefaultToolkit().beep();
+                if (txtSend.getText().length() <= 160) {
+                    client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
+                    txtSend.setText(null);
+                }else
+                    txtAChat.append("Messages canno´t have more than 160" 
+                            + " characters!");
+                break;
+            case KeyEvent.VK_ESCAPE:
+                System.exit(1);
+        }
+    }
+
+    public boolean isInteger(String s) {
+        try {
+            int iport = Integer.parseInt(s);
+        } catch (NumberFormatException nfe) {
+            //System.out.println("Please enter a correct port number");
+            return false;
+        }
+        return true;
+    }
+
+    public int intConverter(String s) {
+        String ort;
+        if (isInteger(s)) {
+            return Integer.parseInt(s);
+        } else {
+            ort = JOptionPane.showInputDialog(null, "Please Enter a valid Port: ",
+                    "Error Port Number", 1);
+        }
+        txtPort.setText(ort);
+        return intConverter(ort);
+    }
+    
+    void restartGUI() {
+        bttnDisconnect.setEnabled(false);
+        txtHostAdd.setEnabled(true);
+        txtHostAdd.setText("localhost");
+        txtUsername.setEnabled(true);
+        txtUsername.setText("Anonymous");
+        txtPort.setEnabled(true);
+        txtPort.setText("2500");
+        txtAChat.setText(null);
+        txtSend.setEnabled(false);
+        bttnConnectHost.setEnabled(true);
+        bttnNewChatRoom.setEnabled(false);
+        bttnChatRooms.setEnabled(false);
+        bttnUsers.setEnabled(false);
+        bttnJoin.setEnabled(false);
+        DefaultListModel listModel = (DefaultListModel) listChatRooms.getModel();
+        listModel.removeAllElements();
     }
 
     /**
@@ -163,6 +223,7 @@ public class ClientGUI extends javax.swing.JFrame {
         txtAChat.setEnabled(false);
         jScrollPane1.setViewportView(txtAChat);
 
+        txtSend.setEnabled(false);
         txtSend.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtSendKeyReleased(evt);
@@ -339,58 +400,14 @@ public class ClientGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_txtSendKeyReleased
 
     private void bttnDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnDisconnectActionPerformed
-        String susernameD = client.getSusername();
-        String deconnMessage = susernameD + "has disconnected";
-        int option = JOptionPane.showConfirmDialog(null,"Are you sure you want to disconnect?");
-        if(option == JOptionPane.YES_OPTION){
-            System.out.println(deconnMessage);
-           System.exit(1);
-        }else if(option == JOptionPane.NO_OPTION){
-            
-        }else{
-            
+        int option = JOptionPane.showConfirmDialog(null,
+                "Are you sure you want to disconnect?");
+        if (option == JOptionPane.YES_OPTION) {
+            client.sendMessage("", ClientChat.DISCONNECT);
         }
     }//GEN-LAST:event_bttnDisconnectActionPerformed
 
-    private void keyBHandler(KeyEvent evt) {
-        int key = evt.getKeyCode();
-
-        switch (key) {
-            case KeyEvent.VK_ENTER:
-                Toolkit.getDefaultToolkit().beep();
-                client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
-                txtSend.setText(null);
-                break;
-            case KeyEvent.VK_ESCAPE:
-                System.exit(1);
-        }
-    }
-
-    public boolean isInteger(String s) {
-        try {
-            int iport = Integer.parseInt(s);
-        } catch (NumberFormatException nfe) {
-            //System.out.println("Please enter a correct port number");
-            return false;
-        }
-        return true;
-    }
-
-    public int intConverter(String s) {
-        String ort;
-        if (isInteger(s)) {
-            return Integer.parseInt(s);
-        } else {
-            ort = JOptionPane.showInputDialog(null, "Please Enter a valid Port: ",
-                    "Error Port Number", 1);
-        }
-        txtPort.setText(ort);
-        return intConverter(ort);
-    }
-
     private void bttnConnectHostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnConnectHostActionPerformed
-
-
         if ("".equals(txtHostAdd.getText()) || "".equals(txtUsername.getText())
                 || "".equals(txtPort.getText())) {
             System.out.println("Please fill out all needed parameters correctly");
@@ -398,12 +415,20 @@ public class ClientGUI extends javax.swing.JFrame {
             String shost = txtHostAdd.getText();
             String susername = txtUsername.getText();
             String iport = txtPort.getText();
-            createClient(shost, intConverter(iport), susername);
-            bttnDisconnect.setEnabled(true);
-            txtHostAdd.setEnabled(false);
-            txtUsername.setEnabled(false);
-            txtPort.setEnabled(false);
-
+            if(createClient(shost, intConverter(iport), susername)){
+                bttnDisconnect.setEnabled(true);
+                txtHostAdd.setEnabled(false);
+                txtUsername.setEnabled(false);
+                txtPort.setEnabled(false);
+                txtSend.setEnabled(true);
+                bttnConnectHost.setEnabled(false);
+                bttnNewChatRoom.setEnabled(true);
+                bttnChatRooms.setEnabled(true);
+                bttnUsers.setEnabled(true);
+                bttnJoin.setEnabled(true);
+                lblchatRoom.setText("Pending");
+                txtAChat.setText("Welcome " + susername + "!" + "\n");
+            }
         }
     }//GEN-LAST:event_bttnConnectHostActionPerformed
 
@@ -510,4 +535,5 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextField txtSend;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
+
 }
