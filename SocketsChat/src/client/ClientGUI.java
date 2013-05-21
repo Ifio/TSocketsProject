@@ -88,8 +88,9 @@ public class ClientGUI extends javax.swing.JFrame {
                     client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
                     txtSend.setText(null);
                 }else
-                    txtAChat.append("Messages canno´t have more than 160" 
-                            + " characters!");
+                    JOptionPane.showMessageDialog(null, 
+                            "Messages canno´t have more than 160 characters!", 
+                            "Warning", JOptionPane.WARNING_MESSAGE);
                 break;
             case KeyEvent.VK_ESCAPE:
                 System.exit(1);
@@ -420,7 +421,6 @@ public class ClientGUI extends javax.swing.JFrame {
                 txtHostAdd.setEnabled(false);
                 txtUsername.setEnabled(false);
                 txtPort.setEnabled(false);
-                txtSend.setEnabled(true);
                 bttnConnectHost.setEnabled(false);
                 bttnNewChatRoom.setEnabled(true);
                 bttnChatRooms.setEnabled(true);
@@ -441,6 +441,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 txtAChat.setText(null);
                 client.createRoom(schatRoom);
                 lblchatRoom.setText(schatRoom);
+                txtSend.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(null, schatRoom
                         + " already exists, try another one\n", "Error",
@@ -458,6 +459,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 client.sendMessage(client.getSusername()
                         + " has joined to the room!", ClientChat.JOIN_ROOM);
                 lblchatRoom.setText(schatRoom);
+                txtSend.setEnabled(true);
             }
         }
     }//GEN-LAST:event_bttnJoinActionPerformed
