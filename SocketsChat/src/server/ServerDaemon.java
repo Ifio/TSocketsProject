@@ -1,6 +1,8 @@
 package server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,8 +17,7 @@ import java.util.HashMap;
  */
 public class ServerDaemon {
 
-    //global variables
-    private int iport = 2500;
+    private int iport;
     private boolean bwaiting;
     private ArrayList<ClientThread> alclients;
     private HashMap<Integer, String> hmclients;
@@ -24,14 +25,22 @@ public class ServerDaemon {
     private int icurrentClientId = 0;
 
     //constructor
-    ServerDaemon() {
+    ServerDaemon(int iport) {
+        this.iport = iport;
         alclients = new ArrayList();
         alchatRooms = new ArrayList();
         hmclients = new HashMap();
     }
 
     public static void main(String[] args) {
-        new ServerDaemon().startDaemon();
+        try {
+            System.out.println("Please insert a port to start listening: ");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            int iport = Integer.parseInt(reader.readLine());
+            new ServerDaemon(iport).startDaemon();
+        } catch (IOException | NumberFormatException ex) {
+            System.out.println(ex);
+        }
 
     }
 
@@ -40,21 +49,23 @@ public class ServerDaemon {
         return hmclients;
     }
 
-    public void startDaemon() {
-
+    void startDaemon() {
         bwaiting = true;
         ServerSocket server;
         try {
             server = new ServerSocket(iport);
+            System.out.println("Server is waiting for connections on port: " + 
+                    iport);
             //wait and accept new connections
             while (bwaiting) {
-                System.out.println("Server is waiting for connections on port: " + iport);
                 Socket client = server.accept();
+                System.out.println("Connection accepted!, new client Id is " + 
+                        icurrentClientId);
                 ClientThread tclient = new ClientThread(this, client);
                 tclient.setIclientId(icurrentClientId++);
                 alclients.add(tclient);
                 tclient.start();
-
+                System.out.println("Server is waiting for more connections...");
             }
 
             closeCommunication();
@@ -67,7 +78,6 @@ public class ServerDaemon {
 
     void setNewClient(ClientThread tclient, String susername) {
         hmclients.put(tclient.getIclientId(), susername);
-        System.out.println(hmclients);
     }
 
     private void closeCommunication() {
@@ -163,7 +173,8 @@ public class ServerDaemon {
                 alclients.remove(i--);
                 hmclients.remove(iclientId);
                 updateRooms(schatRoom);
-                System.out.println("Disconnected client!");
+                System.out.println("Disconnected client with client Id: " + 
+                        iclientId);
             }
         }
     }

@@ -23,6 +23,7 @@ public class ClientThread extends Thread {
     private String schatRoom;
     private int iclientId;
     boolean brunning = true;
+    
     //Message conventions
     public static final int NEW_CLIENT = 0;
     public static final int MESSAGE = 1;

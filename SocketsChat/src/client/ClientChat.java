@@ -90,10 +90,10 @@ public class ClientChat extends Thread {
 
     public void sendMessage(String smessage, int itype) {
         JSONObject msg = new JSONObject();
-        msg.put("username", susername);
-        msg.put("chatRoom", schatRoom);
         msg.put("message", smessage);
         msg.put("type", new Integer(itype));
+        msg.put("username", susername);
+        msg.put("chatRoom", schatRoom);
         try {
             dos.writeObject(msg);
         } catch (IOException ioe) {

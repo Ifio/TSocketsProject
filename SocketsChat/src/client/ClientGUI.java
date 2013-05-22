@@ -76,26 +76,6 @@ public class ClientGUI extends javax.swing.JFrame {
             txtAChat.append("There aren't any " + title.toLowerCase() + "\n");
         }
     }
-    
-    
-    private void keyBHandler(KeyEvent evt) {
-        int key = evt.getKeyCode();
-
-        switch (key) {
-            case KeyEvent.VK_ENTER:
-                Toolkit.getDefaultToolkit().beep();
-                if (txtSend.getText().length() <= 160) {
-                    client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
-                    txtSend.setText(null);
-                }else
-                    JOptionPane.showMessageDialog(null, 
-                            "Messages canno´t have more than 160 characters!", 
-                            "Warning", JOptionPane.WARNING_MESSAGE);
-                break;
-            case KeyEvent.VK_ESCAPE:
-                System.exit(1);
-        }
-    }
 
     public boolean isInteger(String s) {
         try {
@@ -121,6 +101,7 @@ public class ClientGUI extends javax.swing.JFrame {
     
     void restartGUI() {
         bttnDisconnect.setEnabled(false);
+        lblchatRoom.setText(null);
         txtHostAdd.setEnabled(true);
         txtHostAdd.setText("localhost");
         txtUsername.setEnabled(true);
@@ -136,6 +117,25 @@ public class ClientGUI extends javax.swing.JFrame {
         bttnJoin.setEnabled(false);
         DefaultListModel listModel = (DefaultListModel) listChatRooms.getModel();
         listModel.removeAllElements();
+    }
+    
+    private void keyBHandler(KeyEvent evt) {
+        int key = evt.getKeyCode();
+
+        switch (key) {
+            case KeyEvent.VK_ENTER:
+                Toolkit.getDefaultToolkit().beep();
+                if (txtSend.getText().length() <= 160) {
+                    client.sendMessage(txtSend.getText(), ClientChat.MESSAGE);
+                    txtSend.setText(null);
+                }else
+                    JOptionPane.showMessageDialog(null, 
+                            "Messages can't have more than 160 characters!", 
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                break;
+            case KeyEvent.VK_ESCAPE:
+                System.exit(1);
+        }
     }
 
     /**
