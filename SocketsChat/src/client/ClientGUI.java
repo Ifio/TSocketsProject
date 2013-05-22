@@ -7,26 +7,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.swing.text.DefaultCaret;
 
 /**
  *
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 2.0
+ * @version Ver Release 1.0 , Script ver 2.2
  */
 public class ClientGUI extends javax.swing.JFrame {
 
     private ClientChat client;
     private Dimension sdim;
+    
 
     /**
      * Creates new form ClientGUI
      */
     public ClientGUI() {
         initComponents();
-        //Centering the frame
+        //Centering the 
         getCenterPosition();
+        DefaultCaret car = (DefaultCaret) txtAChat.getCaret();
+        car.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
     private void getCenterPosition() {
@@ -224,7 +228,14 @@ public class ClientGUI extends javax.swing.JFrame {
         txtAChat.setEnabled(false);
         jScrollPane1.setViewportView(txtAChat);
 
+        txtSend.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         txtSend.setEnabled(false);
+        txtSend.setPreferredSize(new java.awt.Dimension(6, 22));
+        txtSend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSendActionPerformed(evt);
+            }
+        });
         txtSend.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtSendKeyReleased(evt);
@@ -319,7 +330,7 @@ public class ClientGUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1)
-                            .addComponent(txtSend))
+                            .addComponent(txtSend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -387,9 +398,9 @@ public class ClientGUI extends javax.swing.JFrame {
                         .addComponent(bttnUsers))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtSend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bttnDisconnect))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(bttnDisconnect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txtSend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -471,6 +482,10 @@ public class ClientGUI extends javax.swing.JFrame {
     private void bttnUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bttnUsersActionPerformed
         client.sendMessage("", ClientChat.USERS_INFO);
     }//GEN-LAST:event_bttnUsersActionPerformed
+
+    private void txtSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSendActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSendActionPerformed
 
     /**
      * @param args the command line arguments

@@ -13,7 +13,7 @@ import java.util.HashMap;
  * @author Camilo Velasquez
  * @author Jason Carcamo
  * @since 16/05/2013
- * @version 2.0
+ * @version Ver Release 1.0 , Script ver 2.2
  */
 public class ServerDaemon {
 
